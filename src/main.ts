@@ -6,6 +6,11 @@ import { createTitleText } from './scene/titleText';
 import { createMenuItems } from './scene/menuItems';
 import { setupComposer } from './postprocessing/setupComposer';
 import { createDebugPanel } from './debugPanel';
+import {
+  showDrawingOverlay,
+  hideDrawingOverlay,
+  isDrawingOverlayVisible,
+} from './drawing/drawingOverlay';
 import { initCheatConsole } from './cheats/cheatConsole';
 import { registerDefaultCheats } from './cheats/defaultCheats';
 
@@ -47,9 +52,33 @@ async function init() {
     fog: scene.fog as THREE.FogExp2,
   });
 
+  // Drawing overlay (press D to open)
+  window.addEventListener('keydown', (e) => {
+    if (
+      e.target instanceof HTMLInputElement ||
+      e.target instanceof HTMLTextAreaElement
+    ) {
+      return;
+    }
+    if (e.key === 'd' || e.key === 'D') {
+      e.preventDefault();
+      if (isDrawingOverlayVisible()) {
+        hideDrawingOverlay();
+      } else {
+        showDrawingOverlay({
+          onSubmit: (result) => {
+            console.log('Drawing submitted:', result.categoryId, result.imageData.length);
+            hideDrawingOverlay();
+          },
+        });
+      }
+    }
+  });
+
   // Cheat console (press T to open)
   registerDefaultCheats({ scene, camera, bloomPass, retroPass });
   initCheatConsole();
+
 
   let lastTime = performance.now();
 

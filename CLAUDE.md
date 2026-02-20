@@ -9,6 +9,7 @@ DungeonSlopper — Three.js dungeon splash screen. Vite + vanilla TypeScript, no
 - **Vite** (dev server + bundler)
 - **Three.js** (3D rendering, post-processing)
 - **vite-plugin-glsl** (GLSL shader imports)
+- **lil-gui** (debug tuning panel)
 - **TypeScript** (strict mode)
 
 ## Commands
@@ -121,11 +122,22 @@ If a test framework is added later (e.g., Vitest):
 
 ```
 src/
-  main.ts                     # Entry point, animate loop
-  scene/                      # Scene objects (corridor, torches, text)
-  postprocessing/             # EffectComposer chain, shader passes
-  shaders/                    # Raw GLSL files
-  utils/                      # Utilities (textures, font loader)
+  main.ts                     # Entry point, animate loop, hover detection
+  debugPanel.ts               # lil-gui tuning panel with clipboard export
+  scene/
+    createScene.ts            # Scene, camera, renderer, fog
+    corridor.ts               # Infinite corridor with segment pooling
+    torches.ts                # Torch meshes + distance-culled PointLights
+    titleText.ts              # "DungeonSlopper" arched 3D text
+    menuItems.ts              # Menu items (Start, Settings, Credits) with hover
+  postprocessing/
+    setupComposer.ts          # EffectComposer chain (RenderPass + Bloom + RetroPass)
+    retroShaderPass.ts        # Combined retro shader (grain + CRT + color grade)
+  shaders/
+    retroComposite.glsl       # Single combined fragment shader for all retro effects
+  utils/
+    proceduralTextures.ts     # Canvas-based brick/stone textures
+    fontLoader.ts             # Shared font cache + loader (single source of truth)
 ```
 
 ### TypeScript
@@ -139,3 +151,18 @@ src/
 - Dispose geometries and materials when removing objects
 - Use object pooling for repeated elements (corridor segments)
 - Keep draw calls low — reuse materials and geometries
+- Share geometries/materials across instances (never duplicate per-mesh)
+- Centralize font/texture caches — never duplicate caches across modules
+
+### Three.js Performance Rules
+
+These rules were learned from profiling and must be followed:
+
+- **Limit active PointLights to 6 max** — distance-cull the rest (set `visible = false`). 40 PointLights caused severe frame drops
+- **Never enable `renderer.shadowMap`** unless something actually casts shadows
+- **Combine simple shader passes** — film grain + CRT + color grade should be a single ShaderPass, not 3 separate full-screen draws
+- **Halve bloom resolution** — pass `width/2, height/2` to UnrealBloomPass
+- **Cap pixel ratio** — `Math.min(window.devicePixelRatio, 2)` prevents 3x+ retina rendering
+- **Sync EffectComposer pixel ratio** — call `composer.setPixelRatio(renderer.getPixelRatio())`
+- **Never allocate in the animate loop** — cache arrays, raycast targets, etc. outside `requestAnimationFrame`
+- **Pass time as parameter** — don't call `performance.now()` redundantly in multiple modules

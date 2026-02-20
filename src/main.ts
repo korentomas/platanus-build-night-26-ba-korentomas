@@ -91,7 +91,7 @@ async function init() {
               });
 
               generationOverlay.setStage('loading', 'Summoning creature...');
-              const enemyModel = await loadEnemyModel(forgeResult.animations);
+              const enemyModel = await loadEnemyModel(forgeResult);
 
               activeEnemy?.dispose();
               const spawnZ = corridorState.cameraZ - 30;
@@ -127,7 +127,7 @@ async function init() {
 
     updateCorridor(corridorState, camera, delta, time);
     updateTorches(time, corridorState.cameraZ);
-    activeEnemy?.update(delta, corridorState.cameraZ);
+    activeEnemy?.update(delta, time, corridorState.cameraZ);
     retroPass.uniforms['time'].value = time;
 
     // Menu hover glow

@@ -1,14 +1,4 @@
-export interface EnemyForgeResult {
-  riggedModelUrl: string;
-  animations: {
-    idle: string;
-    walk: string;
-    attack: string;
-    death: string;
-  };
-}
-
-export type ForgeStage = 'sketch' | 'mesh' | 'rigging' | 'animating' | 'done' | 'error';
+export type ForgeStage = 'sketch' | 'mesh' | 'done' | 'error';
 
 export interface ForgeProgress {
   stage: ForgeStage;
@@ -18,7 +8,7 @@ export interface ForgeProgress {
 export async function forgeEnemy(
   sketchDataUrl: string,
   onProgress?: (progress: ForgeProgress) => void
-): Promise<EnemyForgeResult> {
+): Promise<ArrayBuffer> {
   onProgress?.({ stage: 'mesh', message: 'Conjuring form...' });
 
   const res = await fetch('/api/forge-enemy', {
@@ -33,5 +23,5 @@ export async function forgeEnemy(
   }
 
   onProgress?.({ stage: 'done', message: 'Enemy forged!' });
-  return res.json();
+  return res.arrayBuffer();
 }

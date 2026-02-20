@@ -5,7 +5,7 @@ import { EnemyStateMachine, createEnemyStateMachine } from './enemyStateMachine'
 export interface EnemyInstance {
   model: EnemyModel;
   stateMachine: EnemyStateMachine;
-  update(delta: number, cameraZ: number): void;
+  update(delta: number, time: number, cameraZ: number): void;
   dispose(): void;
 }
 
@@ -18,13 +18,13 @@ export function createEnemyInstance(
   scene: THREE.Scene,
   spawnZ: number
 ): EnemyInstance {
-  const stateMachine = createEnemyStateMachine(model.mixer, model.clips);
+  const stateMachine = createEnemyStateMachine(model.group);
 
   model.group.position.set(0, 0, spawnZ);
   scene.add(model.group);
 
-  function update(delta: number, cameraZ: number): void {
-    stateMachine.update(delta);
+  function update(delta: number, time: number, cameraZ: number): void {
+    stateMachine.update(delta, time);
     if (stateMachine.isDead) return;
 
     const distToCamera = Math.abs(model.group.position.z - cameraZ);

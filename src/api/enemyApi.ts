@@ -1,4 +1,4 @@
-export type ForgeStage = 'sketch' | 'mesh' | 'done' | 'error';
+export type ForgeStage = 'generating' | 'done' | 'error';
 
 export interface ForgeProgress {
   stage: ForgeStage;
@@ -8,8 +8,8 @@ export interface ForgeProgress {
 export async function forgeEnemy(
   sketchDataUrl: string,
   onProgress?: (progress: ForgeProgress) => void
-): Promise<ArrayBuffer> {
-  onProgress?.({ stage: 'mesh', message: 'Conjuring form...' });
+): Promise<string> {
+  onProgress?.({ stage: 'generating', message: 'Conjuring form...' });
 
   const res = await fetch('/api/forge-enemy', {
     method: 'POST',
@@ -22,6 +22,14 @@ export async function forgeEnemy(
     throw new Error(err.error || `Forge failed (${res.status})`);
   }
 
-  onProgress?.({ stage: 'done', message: 'Enemy forged!' });
-  return res.arrayBuffer();
+  // Convert response PNG to data URL for use as texture
+  const blob = await res.blob();
+  const dataUrl = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+
+  onProgress?.({ stage: 'done', message: 'Enemy conjured!' });
+  return dataUrl;
 }

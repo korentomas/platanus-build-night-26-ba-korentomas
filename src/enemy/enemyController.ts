@@ -5,7 +5,7 @@ import { EnemyStateMachine, createEnemyStateMachine } from './enemyStateMachine'
 export interface EnemyInstance {
   model: EnemyModel;
   stateMachine: EnemyStateMachine;
-  update(delta: number, time: number, cameraZ: number): void;
+  update(delta: number, time: number, camera: THREE.Camera, cameraZ: number): void;
   dispose(): void;
 }
 
@@ -23,8 +23,8 @@ export function createEnemyInstance(
   model.group.position.set(0, 0, spawnZ);
   scene.add(model.group);
 
-  function update(delta: number, time: number, cameraZ: number): void {
-    stateMachine.update(delta, time);
+  function update(delta: number, time: number, camera: THREE.Camera, cameraZ: number): void {
+    stateMachine.update(delta, time, camera);
     if (stateMachine.isDead) return;
 
     const distToCamera = Math.abs(model.group.position.z - cameraZ);
@@ -36,6 +36,7 @@ export function createEnemyInstance(
         }
         break;
       case 'walk':
+        // Walk toward camera (camera moves in -Z)
         model.group.position.z += WALK_SPEED * delta;
         if (distToCamera < ATTACK_RANGE) {
           stateMachine.transition('attack');

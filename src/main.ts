@@ -14,7 +14,7 @@ import {
 import { initCheatConsole } from './cheats/cheatConsole';
 import { registerDefaultCheats } from './cheats/defaultCheats';
 import { forgeEnemy } from './api/enemyApi';
-import { loadEnemyModel } from './enemy/enemyLoader';
+import { loadEnemySprite } from './enemy/enemyLoader';
 import { createEnemyInstance, EnemyInstance } from './enemy/enemyController';
 import { createGenerationOverlay } from './enemy/generationOverlay';
 
@@ -91,7 +91,7 @@ async function init() {
               });
 
               generationOverlay.setStage('loading', 'Summoning creature...');
-              const enemyModel = await loadEnemyModel(forgeResult);
+              const enemyModel = await loadEnemySprite(forgeResult);
 
               activeEnemy?.dispose();
               const spawnZ = corridorState.cameraZ - 30;
@@ -127,7 +127,7 @@ async function init() {
 
     updateCorridor(corridorState, camera, delta, time);
     updateTorches(time, corridorState.cameraZ);
-    activeEnemy?.update(delta, time, corridorState.cameraZ);
+    activeEnemy?.update(delta, time, camera, corridorState.cameraZ);
     retroPass.uniforms['time'].value = time;
 
     // Menu hover glow

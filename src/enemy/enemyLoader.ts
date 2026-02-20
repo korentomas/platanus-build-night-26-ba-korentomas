@@ -1,44 +1,52 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 export interface EnemyModel {
   group: THREE.Group;
   dispose: () => void;
 }
 
-export async function loadEnemyModel(glbBuffer: ArrayBuffer): Promise<EnemyModel> {
-  const loader = new GLTFLoader();
-  const gltf = await loader.parseAsync(glbBuffer, './');
-  const model = gltf.scene;
+const ENEMY_HEIGHT = 1.7; // units tall in the corridor
 
-  // Normalize to ~1.7 units tall, feet on ground
-  const box = new THREE.Box3().setFromObject(model);
-  const size = box.getSize(new THREE.Vector3());
-  const center = box.getCenter(new THREE.Vector3());
-  const targetHeight = 1.7;
-  const scale = targetHeight / Math.max(size.y, 0.01);
-  model.scale.setScalar(scale);
-  model.position.x = -center.x * scale;
-  model.position.y = -box.min.y * scale;
-  model.position.z = -center.z * scale;
+export function loadEnemySprite(imageDataUrl: string): Promise<EnemyModel> {
+  return new Promise((resolve, reject) => {
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load(
+      imageDataUrl,
+      (texture) => {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
 
-  const group = new THREE.Group();
-  group.add(model);
+        // Calculate aspect ratio from texture dimensions
+        const aspect = texture.image.width / texture.image.height;
+        const width = ENEMY_HEIGHT * aspect;
 
-  function dispose(): void {
-    model.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.geometry.dispose();
-        const materials = Array.isArray(child.material)
-          ? child.material
-          : [child.material];
-        for (const m of materials) {
-          if ('map' in m && m.map) (m.map as THREE.Texture).dispose();
-          m.dispose();
+        const geometry = new THREE.PlaneGeometry(width, ENEMY_HEIGHT);
+        const material = new THREE.MeshBasicMaterial({
+          map: texture,
+          transparent: true,
+          alphaTest: 0.1,
+          side: THREE.DoubleSide,
+          depthWrite: true,
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        // Raise so feet touch the floor (y=0 is corridor floor level)
+        mesh.position.y = ENEMY_HEIGHT / 2;
+
+        const group = new THREE.Group();
+        group.add(mesh);
+
+        function dispose(): void {
+          geometry.dispose();
+          material.dispose();
+          texture.dispose();
         }
-      }
-    });
-  }
 
-  return { group, dispose };
+        resolve({ group, dispose });
+      },
+      undefined,
+      reject,
+    );
+  });
 }

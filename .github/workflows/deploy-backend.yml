@@ -19,9 +19,14 @@ jobs:
           host: 178.156.211.116
           username: root
           key: ${{ secrets.HETZNER_SSH_KEY }}
+          envs: ADMIN_SECRET
           script: |
             cd /opt/dungeonslopper
             git pull origin main
             npm install --production
+            # Ensure ADMIN_SECRET is in .env
+            grep -q '^ADMIN_SECRET=' .env 2>/dev/null && sed -i "s/^ADMIN_SECRET=.*/ADMIN_SECRET=$ADMIN_SECRET/" .env || echo "ADMIN_SECRET=$ADMIN_SECRET" >> .env
             pm2 restart dungeonslopper || pm2 start npx --name dungeonslopper -- tsx server/index.ts
             pm2 save
+        env:
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}

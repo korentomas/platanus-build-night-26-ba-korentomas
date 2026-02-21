@@ -580,12 +580,14 @@ function buildOverlay(categories: DrawingCategory[], defaultCategory?: string): 
   // Name input
   const nameLabel = document.createElement('div');
   Object.assign(nameLabel.style, {
-    color: '#2a1a0a',
+    color: '#daa520',
     fontFamily: '"Courier New", Courier, monospace',
-    fontSize: '12px',
-    fontWeight: '600',
+    fontSize: '13px',
+    fontWeight: '700',
+    letterSpacing: '0.5px',
+    textShadow: '-1px -1px 0 #2a1a0a, 1px -1px 0 #2a1a0a, -1px 1px 0 #2a1a0a, 1px 1px 0 #2a1a0a',
   });
-  nameLabel.textContent = 'Name';
+  nameLabel.textContent = 'NAME';
   sidebar.appendChild(nameLabel);
 
   nameInput = document.createElement('input');
@@ -595,8 +597,8 @@ function buildOverlay(categories: DrawingCategory[], defaultCategory?: string): 
   Object.assign(nameInput.style, {
     width: '100%',
     boxSizing: 'border-box',
-    padding: '6px 10px',
-    background: 'rgba(210, 180, 140, 0.3)',
+    padding: '8px 10px',
+    background: '#f4e4c1',
     border: '2px solid #8b7355',
     borderRadius: '6px',
     fontFamily: '"Courier New", Courier, monospace',
@@ -609,12 +611,14 @@ function buildOverlay(categories: DrawingCategory[], defaultCategory?: string): 
   // Prompt label
   const promptLabel = document.createElement('div');
   Object.assign(promptLabel.style, {
-    color: '#2a1a0a',
+    color: '#daa520',
     fontFamily: '"Courier New", Courier, monospace',
-    fontSize: '12px',
-    fontWeight: '600',
+    fontSize: '13px',
+    fontWeight: '700',
+    letterSpacing: '0.5px',
+    textShadow: '-1px -1px 0 #2a1a0a, 1px -1px 0 #2a1a0a, -1px 1px 0 #2a1a0a, 1px 1px 0 #2a1a0a',
   });
-  promptLabel.textContent = 'Describe your creation';
+  promptLabel.textContent = 'DESCRIBE';
   sidebar.appendChild(promptLabel);
 
   // Text prompt textarea
@@ -625,7 +629,7 @@ function buildOverlay(categories: DrawingCategory[], defaultCategory?: string): 
     width: '100%',
     boxSizing: 'border-box',
     padding: '8px 10px',
-    background: 'rgba(210, 180, 140, 0.3)',
+    background: '#f4e4c1',
     border: '2px solid #8b7355',
     borderRadius: '6px',
     fontFamily: '"Courier New", Courier, monospace',

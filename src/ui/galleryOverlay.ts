@@ -810,11 +810,12 @@ function buildOverlay(): HTMLDivElement {
   gridEl = document.createElement('div');
   Object.assign(gridEl.style, {
     display: 'none',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    gridTemplateColumns: 'repeat(3, 1fr)',
     gap: '16px',
     overflowY: 'auto',
     flex: '1',
     padding: '4px 8px 4px 4px',
+    alignContent: 'start',
   });
   content.appendChild(gridEl);
 

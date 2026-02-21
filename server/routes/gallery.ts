@@ -7,6 +7,7 @@ interface GalleryItem {
   id: number;
   name: string;
   category: 'weapon' | 'enemy' | 'decoration';
+  subtype: string;
   sketch: string | null;
   output: string | null;
   created_at: string;
@@ -33,8 +34,8 @@ galleryRouter.get('/gallery', async (req: Request, res: Response) => {
     // Weapons — thumbnail from sketch_png, output from output_png (Stability AI result)
     if (!category || category === 'weapon') {
       const weaponQuery = searchFilter
-        ? 'SELECT id, name, sketch_png, output_png, created_at FROM weapons WHERE name ILIKE $1 ORDER BY created_at DESC'
-        : 'SELECT id, name, sketch_png, output_png, created_at FROM weapons ORDER BY created_at DESC';
+        ? 'SELECT id, name, sketch_png, output_png, subtype, created_at FROM weapons WHERE name ILIKE $1 ORDER BY created_at DESC'
+        : 'SELECT id, name, sketch_png, output_png, subtype, created_at FROM weapons ORDER BY created_at DESC';
       const weaponParams = searchFilter ? [searchFilter] : [];
       const weaponResult = await pool.query(weaponQuery, weaponParams);
 
@@ -49,6 +50,7 @@ galleryRouter.get('/gallery', async (req: Request, res: Response) => {
           id: row.id,
           name: row.name,
           category: 'weapon',
+          subtype: row.subtype || 'sword',
           sketch: sketchUrl,
           output: outputUrl,
           created_at: row.created_at,
@@ -59,8 +61,8 @@ galleryRouter.get('/gallery', async (req: Request, res: Response) => {
     // Enemies — thumbnail from sprite_png (bytea)
     if (!category || category === 'enemy') {
       const enemyQuery = searchFilter
-        ? 'SELECT id, name, sprite_png, sketch_png, created_at FROM enemies WHERE name ILIKE $1 ORDER BY created_at DESC'
-        : 'SELECT id, name, sprite_png, sketch_png, created_at FROM enemies ORDER BY created_at DESC';
+        ? 'SELECT id, name, sprite_png, sketch_png, subtype, created_at FROM enemies WHERE name ILIKE $1 ORDER BY created_at DESC'
+        : 'SELECT id, name, sprite_png, sketch_png, subtype, created_at FROM enemies ORDER BY created_at DESC';
       const enemyParams = searchFilter ? [searchFilter] : [];
       const enemyResult = await pool.query(enemyQuery, enemyParams);
 
@@ -79,6 +81,7 @@ galleryRouter.get('/gallery', async (req: Request, res: Response) => {
           id: row.id,
           name: row.name,
           category: 'enemy',
+          subtype: row.subtype || 'beast',
           sketch: sketchUrl,
           output: outputUrl,
           created_at: row.created_at,
@@ -89,8 +92,8 @@ galleryRouter.get('/gallery', async (req: Request, res: Response) => {
     // Decorations — thumbnail from sprite_png (bytea)
     if (!category || category === 'decoration') {
       const decoQuery = searchFilter
-        ? 'SELECT id, name, sprite_png, sketch_png, created_at FROM decorations WHERE name ILIKE $1 ORDER BY created_at DESC'
-        : 'SELECT id, name, sprite_png, sketch_png, created_at FROM decorations ORDER BY created_at DESC';
+        ? 'SELECT id, name, sprite_png, sketch_png, subtype, created_at FROM decorations WHERE name ILIKE $1 ORDER BY created_at DESC'
+        : 'SELECT id, name, sprite_png, sketch_png, subtype, created_at FROM decorations ORDER BY created_at DESC';
       const decoParams = searchFilter ? [searchFilter] : [];
       const decoResult = await pool.query(decoQuery, decoParams);
 
@@ -109,6 +112,7 @@ galleryRouter.get('/gallery', async (req: Request, res: Response) => {
           id: row.id,
           name: row.name,
           category: 'decoration',
+          subtype: row.subtype || 'crate',
           sketch: sketchUrl,
           output: outputUrl,
           created_at: row.created_at,

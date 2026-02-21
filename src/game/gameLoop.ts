@@ -32,6 +32,9 @@ import { communityCache } from '../community/communityCache';
 import { setOnCloseCallback, isConsoleOpen } from '../cheats/cheatConsole';
 import { registerGameCheats } from '../cheats/gameCheats';
 import { BreakableSystem } from '../decorations/breakableSystem';
+import { pushAwayFromCircles, type CircleObstacle } from '../player/collision';
+import { cheats } from '../cheats/cheatState';
+import { EnemyAIState } from '../enemies/enemyAI';
 import { createPauseMenu3D } from '../ui/pauseMenu3d';
 import { showLoadingText3D, hideLoadingText3D } from '../ui/loadingScreen3d';
 
@@ -129,6 +132,11 @@ export async function createGameLoop(
 
   // Track whether hit was already checked this attack
   let attackHitChecked = false;
+
+  // Pre-allocated obstacle buffer for circle collision (never allocate in animate loop)
+  const _obstacleBuffer: CircleObstacle[] = [];
+  for (let i = 0; i < 300; i++) _obstacleBuffer.push({ x: 0, z: 0, radius: 0 });
+  let _obstacleCount = 0;
 
   // Ambient + fog for dungeon atmosphere
   ambientLight.color.setHex(0x1a1a2e);
@@ -338,6 +346,25 @@ export async function createGameLoop(
           worldZ: pd.worldZ,
           health: pd.def.health || 1,
           lootType: pd.def.lootType,
+        });
+      }
+    }
+
+    // Register doors as breakable
+    for (const door of dungeonFloor.doors) {
+      door.health = 3; // 3 hits to break
+      const doorMesh = floorResult!.doorMeshes.get(`${door.gridX},${door.gridZ}`);
+      if (doorMesh) {
+        breakableSystem.register({
+          mesh: doorMesh,
+          worldX: door.gridX + 0.5,
+          worldZ: door.gridZ + 0.5,
+          health: 3,
+          onBreak: () => {
+            door.isOpen = true;
+            door.openProgress = 1;
+            door.health = 0;
+          },
         });
       }
     }
@@ -708,8 +735,53 @@ export async function createGameLoop(
     // Player movement
     player.update(delta);
 
+    // Get player position (used for collision, footsteps, and everything below)
+    let pos = player.getPosition();
+
+    // Object collision — push player away from closed doors, pillars, enemies
+    if (!cheats.noclip) {
+      _obstacleCount = 0;
+
+      // Closed doors (radius covers the doorway)
+      for (const door of dungeonFloor.doors) {
+        if (!door.isOpen && door.health > 0 && _obstacleCount < 300) {
+          const obs = _obstacleBuffer[_obstacleCount++];
+          obs.x = door.gridX + 0.5;
+          obs.z = door.gridZ + 0.5;
+          obs.radius = 1.0;
+        }
+      }
+
+      // Alive enemies
+      const aliveEnemies = enemies.getEnemies();
+      for (const enemy of aliveEnemies) {
+        if (enemy.state !== EnemyAIState.DEAD && _obstacleCount < 300) {
+          const obs = _obstacleBuffer[_obstacleCount++];
+          obs.x = enemy.position.x;
+          obs.z = enemy.position.z;
+          obs.radius = 0.4;
+        }
+      }
+
+      // Surviving pillars (still in scene)
+      const placedDecos = getPlacedDecorations();
+      for (const pd of placedDecos) {
+        if (pd.def.name === 'pillar' && pd.model.parent && _obstacleCount < 300) {
+          const obs = _obstacleBuffer[_obstacleCount++];
+          obs.x = pd.worldX;
+          obs.z = pd.worldZ;
+          obs.radius = 0.35;
+        }
+      }
+
+      const pushed = pushAwayFromCircles(pos.x, pos.z, 0.45, _obstacleBuffer, _obstacleCount);
+      if (pushed.x !== pos.x || pushed.z !== pos.z) {
+        player.adjustPosition(pushed.x, pushed.z);
+        pos = player.getPosition();
+      }
+    }
+
     // Footstep SFX — track distance walked
-    const pos = player.getPosition();
     const dx = pos.x - lastPlayerX;
     const dz = pos.z - lastPlayerZ;
     const moved = Math.sqrt(dx * dx + dz * dz);

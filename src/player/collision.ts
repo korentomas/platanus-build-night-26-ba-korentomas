@@ -68,6 +68,35 @@ export function resolveMovement(
  * Checks a circle vs axis-aligned cell boundaries for all neighboring wall cells.
  * This runs AFTER movement resolution as an extra safety pass.
  */
+export interface CircleObstacle {
+  x: number;
+  z: number;
+  radius: number;
+}
+
+export function pushAwayFromCircles(
+  px: number, pz: number,
+  playerRadius: number,
+  obstacles: CircleObstacle[],
+  count: number,
+): { x: number; z: number } {
+  let x = px, z = pz;
+  for (let i = 0; i < count; i++) {
+    const obs = obstacles[i];
+    const dx = x - obs.x;
+    const dz = z - obs.z;
+    const distSq = dx * dx + dz * dz;
+    const minDist = playerRadius + obs.radius;
+    if (distSq < minDist * minDist && distSq > 0.0001) {
+      const dist = Math.sqrt(distSq);
+      const overlap = minDist - dist;
+      x += (dx / dist) * overlap;
+      z += (dz / dist) * overlap;
+    }
+  }
+  return { x, z };
+}
+
 export function pushAwayFromWalls(
   grid: CellType[][],
   px: number,

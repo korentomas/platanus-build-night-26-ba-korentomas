@@ -166,6 +166,14 @@ export class PlayerController {
     this.camera.rotation.x = this.pitch;
   }
 
+  /** Adjust position externally (e.g. after object collision). */
+  adjustPosition(x: number, z: number): void {
+    this.position.x = x;
+    this.position.z = z;
+    this.camera.position.x = x;
+    this.camera.position.z = z;
+  }
+
   /** Get current world position (copy). */
   getPosition(): Vector3 {
     return this.position.clone();

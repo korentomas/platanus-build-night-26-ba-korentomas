@@ -181,7 +181,7 @@ export function showNameEntry3D(
         size: 0.35,
         color: 0x8b7355,
         emissive: 0x554430,
-        emissiveIntensity: 1.5,
+        emissiveIntensity: 1.0,
       });
       enterButton.mesh.position.set(0, -0.8, 0);
       enterButton.material.transparent = true;
@@ -316,7 +316,8 @@ export function showNameEntry3D(
           const nowHovering = hits.length > 0;
           if (nowHovering !== isHovering) {
             isHovering = nowHovering;
-            enterButton.material.emissiveIntensity = isHovering ? 2.4 : 1.5;
+            enterButton.material.emissiveIntensity = isHovering ? 3.5 : 1.0;
+            enterButton.mesh.scale.setScalar(isHovering ? 1.15 : 1.0);
             document.body.style.cursor = isHovering ? 'pointer' : 'default';
           }
         } else if (isHovering) {

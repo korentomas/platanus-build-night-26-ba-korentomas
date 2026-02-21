@@ -5,15 +5,15 @@ import { optimizeGlb } from '../optimizeGlb.js';
 
 export const forgeRouter = Router();
 
-const WEAPON_LABELS: Record<string, string> = {
-  sword: 'a single sword',
-  staff: 'a magical staff or baculus',
-  'dual-daggers': 'a pair of crossed daggers',
-  hammer: 'a war hammer',
-  axe: 'a battle axe',
-  bow: 'a longbow',
-  spear: 'a spear or lance',
-  mace: 'a flanged mace',
+const WEAPON_GRIP: Record<string, string> = {
+  sword: 'held in one hand, single-handed grip',
+  staff: 'held upright with both hands, staff-length',
+  'dual-daggers': 'a matching pair of dual-wielded items, one in each hand',
+  hammer: 'held in one hand, heavy head on a handle',
+  axe: 'held in one hand, bladed head on a handle',
+  bow: 'held like a bow with a string pulled back',
+  spear: 'held in one hand, long-shafted polearm grip',
+  mace: 'held in one hand, weighted head on a handle',
 };
 
 type ForgeCategory = 'weapon' | 'enemy' | 'decoration';
@@ -46,15 +46,15 @@ function buildPromptConfig(category: ForgeCategory, description?: string, weapon
   }
   // weapon (default)
   const resolvedType = weaponType || 'sword';
-  const weaponLabel = WEAPON_LABELS[resolvedType] || WEAPON_LABELS['sword'];
+  const grip = WEAPON_GRIP[resolvedType] || WEAPON_GRIP['sword'];
   const prompt = description
-    ? `A 3D rendered ${weaponLabel}, ${description}. Faithfully match the sketch. Plain white background, centered, single object, high detail, game asset, no text`
-    : `A 3D rendered fantasy ${weaponLabel} on a plain white background, centered, single object, high detail, game asset, no text`;
+    ? `A 3D rendered game weapon based on this sketch: ${description}. The object is ${grip}. Faithfully reproduce exactly what was drawn — the sketch defines the weapon shape, even if it is silly, unconventional, or not a traditional weapon. Plain white background, centered, single object, high detail, game asset, no text`
+    : `A 3D rendered fantasy weapon, ${grip}. Plain white background, centered, single object, high detail, game asset, no text`;
   return {
     prompt,
     negative_prompt: 'blurry, low quality, multiple objects, text, watermark, background scene, glowing effects, particle effects, aura, magic effects',
     style_preset: '3d-model',
-    control_strength: '0.7',
+    control_strength: '0.85',
   };
 }
 

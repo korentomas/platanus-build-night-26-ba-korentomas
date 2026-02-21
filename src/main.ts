@@ -303,9 +303,13 @@ async function init() {
           );
         }
         if (newHoveredIndex !== hoveredIndex) {
-          if (hoveredIndex >= 0) menu.items[hoveredIndex].material.emissiveIntensity = 2.4;
+          if (hoveredIndex >= 0) {
+            menu.items[hoveredIndex].material.emissiveIntensity = 1.2;
+            menu.items[hoveredIndex].mesh.scale.setScalar(1.0);
+          }
           if (newHoveredIndex >= 0) {
-            menu.items[newHoveredIndex].material.emissiveIntensity = 2.55;
+            menu.items[newHoveredIndex].material.emissiveIntensity = 3.5;
+            menu.items[newHoveredIndex].mesh.scale.setScalar(1.15);
             sfxPlayer.play(AudioEvent.MENU_HOVER);
           }
           hoveredIndex = newHoveredIndex;

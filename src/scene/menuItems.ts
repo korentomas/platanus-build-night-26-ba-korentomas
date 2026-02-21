@@ -87,7 +87,7 @@ export async function createMenuItems(camera: THREE.Camera): Promise<MenuHandle>
     const material = new THREE.MeshStandardMaterial({
       color: 0xdaa520,
       emissive: 0xcc7700,
-      emissiveIntensity: 2.4,
+      emissiveIntensity: 1.2,
       roughness: 0.7,
       metalness: 0.45,
       toneMapped: false,

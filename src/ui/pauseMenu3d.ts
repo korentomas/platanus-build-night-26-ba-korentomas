@@ -40,8 +40,10 @@ export interface PauseMenu {
 
 const Z_DEPTH = -7;
 const BUTTON_SIZE = 0.45;
-const HOVER_EMISSIVE = 2.55;
-const DEFAULT_EMISSIVE = 2.4;
+const HOVER_EMISSIVE = 3.5;
+const DEFAULT_EMISSIVE = 1.2;
+const HOVER_SCALE = 1.15;
+const DEFAULT_SCALE = 1.0;
 
 /* ------------------------------------------------------------------ */
 /*  Factory                                                            */
@@ -172,12 +174,18 @@ export async function createPauseMenu3D(
       // Reset previous
       if (hoveredAction !== null) {
         const prev = buttons.find(b => b.action === hoveredAction);
-        if (prev) prev.btn.material.emissiveIntensity = DEFAULT_EMISSIVE;
+        if (prev) {
+          prev.btn.material.emissiveIntensity = DEFAULT_EMISSIVE;
+          prev.btn.mesh.scale.setScalar(DEFAULT_SCALE);
+        }
       }
       // Highlight new
       if (newHovered !== null) {
         const curr = buttons.find(b => b.action === newHovered);
-        if (curr) curr.btn.material.emissiveIntensity = HOVER_EMISSIVE;
+        if (curr) {
+          curr.btn.material.emissiveIntensity = HOVER_EMISSIVE;
+          curr.btn.mesh.scale.setScalar(HOVER_SCALE);
+        }
         document.body.style.cursor = 'pointer';
       } else {
         document.body.style.cursor = 'default';
@@ -236,9 +244,10 @@ export async function createPauseMenu3D(
     document.body.style.cursor = 'default';
     hoveredAction = null;
 
-    // Reset button emissive intensities
+    // Reset button emissive intensities and scale
     for (const entry of buttons) {
       entry.btn.material.emissiveIntensity = DEFAULT_EMISSIVE;
+      entry.btn.mesh.scale.setScalar(DEFAULT_SCALE);
     }
   }
 

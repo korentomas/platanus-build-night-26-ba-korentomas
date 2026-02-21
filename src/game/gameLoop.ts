@@ -101,6 +101,7 @@ export async function createGameLoop(
   let floorResult: FloorMeshResult | null = null;
   let transitioning = false;
   let damageFlash = 0;
+  let cameraShake = 0;
   let decorations: THREE.Group[] = [];
   let paintings: PlacedPainting[] = [];
   let dungeonLights: DungeonLight[] = [];
@@ -906,6 +907,7 @@ export async function createGameLoop(
     if (enemyResult.damageToPlayer > 0) {
       player.takeDamage(enemyResult.damageToPlayer);
       damageFlash = 1;
+      cameraShake = 0.3;
       sfxPlayer?.play(AudioEvent.PLAYER_HURT);
     }
 
@@ -919,6 +921,7 @@ export async function createGameLoop(
       if (projResult.playerDamage > 0) {
         player.takeDamage(projResult.playerDamage);
         damageFlash = 1;
+        cameraShake = 0.3;
         sfxPlayer?.play(AudioEvent.PLAYER_HURT);
       }
     }
@@ -1055,9 +1058,17 @@ export async function createGameLoop(
       }
     }
 
-    // Fade damage flash
+    // Fade damage flash (slower decay for visibility)
     if (damageFlash > 0) {
-      damageFlash = Math.max(0, damageFlash - delta * 3);
+      damageFlash = Math.max(0, damageFlash - delta * 2);
+    }
+
+    // Camera shake on damage — apply small random rotation offsets
+    if (cameraShake > 0) {
+      const shakeIntensity = cameraShake * 0.02;
+      camera.rotation.x += (Math.random() - 0.5) * 2 * shakeIntensity;
+      camera.rotation.y += (Math.random() - 0.5) * 2 * shakeIntensity;
+      cameraShake = Math.max(0, cameraShake - delta * 3);
     }
 
     // Update HUD

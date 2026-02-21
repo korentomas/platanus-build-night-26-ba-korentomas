@@ -384,7 +384,7 @@ export function showRunSummary3D(
         size: 0.35,
         color: 0xdaa520,
         emissive: 0xcc7700,
-        emissiveIntensity: 2.0,
+        emissiveIntensity: 1.5,
       });
       riseButton.mesh.position.set(-1.8, -3.3, 0);
       container.add(riseButton.mesh);
@@ -394,7 +394,7 @@ export function showRunSummary3D(
         size: 0.35,
         color: 0x8b7355,
         emissive: 0x554430,
-        emissiveIntensity: 1.5,
+        emissiveIntensity: 1.0,
       });
       retreatButton.mesh.position.set(1.8, -3.3, 0);
       container.add(retreatButton.mesh);
@@ -450,17 +450,21 @@ export function showRunSummary3D(
         if (newHovered !== hoveredButton) {
           // Reset old
           if (hoveredButton === 'rise' && riseButton) {
-            riseButton.material.emissiveIntensity = 2.0;
+            riseButton.material.emissiveIntensity = 1.5;
+            riseButton.mesh.scale.setScalar(1.0);
           }
           if (hoveredButton === 'retreat' && retreatButton) {
-            retreatButton.material.emissiveIntensity = 1.5;
+            retreatButton.material.emissiveIntensity = 1.0;
+            retreatButton.mesh.scale.setScalar(1.0);
           }
           // Set new
           if (newHovered === 'rise' && riseButton) {
-            riseButton.material.emissiveIntensity = 2.8;
+            riseButton.material.emissiveIntensity = 3.5;
+            riseButton.mesh.scale.setScalar(1.15);
           }
           if (newHovered === 'retreat' && retreatButton) {
-            retreatButton.material.emissiveIntensity = 2.4;
+            retreatButton.material.emissiveIntensity = 3.0;
+            retreatButton.mesh.scale.setScalar(1.15);
           }
           hoveredButton = newHovered;
           document.body.style.cursor = newHovered ? 'pointer' : 'default';

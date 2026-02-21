@@ -77,7 +77,7 @@ export function updateAI(
       }
 
       if (distToPlayer <= enemyType.attackRange) {
-        return { newState: EnemyAIState.ATTACK, moveDirection: null, dealDamage: false, fireProjectile: false, fireDirection: null };
+        return { newState: EnemyAIState.COOLDOWN, moveDirection: null, dealDamage: true, fireProjectile: false, fireDirection: null };
       }
 
       // Move toward player

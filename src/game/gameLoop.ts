@@ -479,7 +479,7 @@ export async function createGameLoop(
     // Demo: always drop a blueprint in the spawn room on floor 1
     if (currentFloorNumber === 1 && dungeonFloor.rooms.length > 0) {
       const spawnRoom = dungeonFloor.rooms[0];
-      const cx = spawnRoom.x + spawnRoom.width / 2;
+      const cx = spawnRoom.x + spawnRoom.width / 2 + 3;
       const cz = spawnRoom.y + spawnRoom.height / 2;
       const bp = spawnBlueprintAtPosition(cx, cz, floorResult.group);
       items.push(bp);

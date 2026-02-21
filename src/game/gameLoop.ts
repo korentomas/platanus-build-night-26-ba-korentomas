@@ -504,6 +504,7 @@ export async function createGameLoop(
     );
 
     // Fetch DB enemies and add to spawn pool
+    let demoBossType: EnemyType | null = null;
     try {
       const res = await fetch('/api/enemies');
       if (res.ok) {
@@ -516,6 +517,8 @@ export async function createGameLoop(
           const stats = { health: meta.health, speed: meta.speed, damage: meta.damage, points: meta.points };
           const customType = await createCustomEnemyType(dataUrl, stats, meta.name);
           allEnemyTypes.push(customType);
+          // Track enemy ID 4 for demo floor 1 boss
+          if (meta.id === 4) demoBossType = customType;
         }
       }
     } catch {
@@ -529,8 +532,10 @@ export async function createGameLoop(
       let count: number;
 
       if (room.type === RoomType.BOSS) {
-        // Pick a random enemy type and scale it up to boss tier
-        const baseType = allEnemyTypes[Math.floor(Math.random() * allEnemyTypes.length)];
+        // Floor 1 demo boss: always use enemy ID 4 if available
+        const baseType = (currentFloorNumber === 1 && demoBossType)
+          ? demoBossType
+          : allEnemyTypes[Math.floor(Math.random() * allEnemyTypes.length)];
         const bossType = makeBossVersion(baseType);
         const bossSpawn = roomSpawns.find(s => s.isBoss) || roomSpawns[0];
         enemies.spawnEnemiesInRoom(bossSpawn, 1, bossType, dungeonFloor.grid, room.index);

@@ -14,11 +14,15 @@ import { registerDefaultCheats } from './cheats/defaultCheats';
 import { showGalleryOverlay } from './ui/galleryOverlay';
 import { showNameEntry3D } from './ui/nameEntry3d';
 import { showRunSummary3D, type RunStats } from './ui/runSummary3d';
+import { setGameCursor } from './ui/gameCursor';
 
 async function init() {
   const { scene, camera, renderer, ambientLight, fog } = createScene();
   const { composer, bloomPass, retroPass } = setupComposer(renderer, scene, camera);
   const fadeOverlay = createFadeOverlay();
+
+  // Apply custom game cursor to the whole page immediately
+  setGameCursor();
 
   // Audio system
   const audioManager = new AudioManager();
@@ -59,7 +63,7 @@ async function init() {
     ]);
 
     allHitTargets = menu.items.flatMap((item) => [item.mesh, item.hitArea]);
-    renderer.domElement.style.cursor = 'default';
+    setGameCursor();
     hoveredIndex = -1;
 
     // Credits bar
@@ -143,7 +147,7 @@ async function init() {
 
   async function startGame() {
     state = GameStateType.FADE_TO_GAME;
-    renderer.domElement.style.cursor = 'default';
+    setGameCursor();
 
     sfxPlayer.play(AudioEvent.MENU_SELECT);
     musicPlayer.stop();
@@ -192,7 +196,7 @@ async function init() {
   /** Start game without name entry (used for Restart from pause menu). */
   async function startGameDirect() {
     state = GameStateType.FADE_TO_GAME;
-    renderer.domElement.style.cursor = 'default';
+    setGameCursor();
 
     await fadeToBlack(fadeOverlay, 1000);
 
@@ -318,7 +322,7 @@ async function init() {
             sfxPlayer.play(AudioEvent.MENU_HOVER);
           }
           hoveredIndex = newHoveredIndex;
-          renderer.domElement.style.cursor = newHoveredIndex >= 0 ? 'pointer' : 'default';
+          renderer.domElement.style.cursor = newHoveredIndex >= 0 ? 'pointer' : '';
         }
       }
     }

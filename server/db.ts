@@ -37,6 +37,15 @@ export async function initDb() {
       model_glb BYTEA,
       created_at TIMESTAMP DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS favicons (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL DEFAULT 'Unnamed Favicon',
+      sketch_png TEXT,
+      favicon_png BYTEA,
+      style VARCHAR(50) DEFAULT 'retro-8bit',
+      created_at TIMESTAMP DEFAULT NOW()
+    );
   `);
   console.log('Database tables initialized');
 }

@@ -6,6 +6,7 @@ import { forgeRouter } from './routes/forge.js';
 import { weaponsRouter } from './routes/weapons.js';
 import { enemiesRouter } from './routes/enemies.js';
 import { decorationsRouter } from './routes/decorations.js';
+import { faviconRouter } from './routes/favicon.js';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use('/api', forgeRouter);
 app.use('/api', weaponsRouter);
 app.use('/api', enemiesRouter);
 app.use('/api', decorationsRouter);
+app.use('/api', faviconRouter);
 
 initDb()
   .then(() => {

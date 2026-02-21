@@ -10,6 +10,7 @@ import { HUD, type HUDState } from '../hud/hud';
 import { RoomType, type DungeonFloor, type SpawnPoint } from '../dungeon/types';
 import { fadeToBlack, fadeFromBlack } from './transition';
 import { SwordModel } from '../weapons/swordModel';
+import { DualSwordModel } from '../weapons/dualSwordModel';
 import { type MusicPlayer, type SfxPlayer, AudioEvent } from '../audio';
 import { createDungeonLights, updateDungeonLights, disposeDungeonLights, type DungeonLight } from '../dungeon/dungeonLights';
 import { spawnDecorations, disposeDecorations } from '../decorations/decorationPlacer';
@@ -99,6 +100,8 @@ export async function createGameLoop(
   const enemies = new EnemyManager(scene);
   const hud = new HUD();
   const swordModel = new SwordModel(camera);
+  let dualSwordModel: DualSwordModel | null = null;
+  let activeWeaponModel: 'sword' | 'dual' = 'sword';
 
   // Create ProjectileManager
   projectileManager = new ProjectileManager(scene, PROJECTILE_TYPES.MAGIC_BOLT);
@@ -145,6 +148,9 @@ export async function createGameLoop(
     combat.startAttack();
     attackHitChecked = false;
     sfxPlayer?.play(AudioEvent.SWORD_SWING);
+    if (activeWeaponModel === 'dual' && dualSwordModel) {
+      dualSwordModel.startAttack();
+    }
   }
 
   // Click to attack, or re-acquire pointer lock if lost
@@ -450,19 +456,44 @@ export async function createGameLoop(
       hideForgeProgress();
       hideDrawingOverlay();
 
+      sfxPlayer?.play(AudioEvent.FORGE_COMPLETE);
+
       if (forgedItem.category === 'weapon') {
-        await swordModel.loadGLB(forgedItem.data);
-        swordModel.currentWeaponName = forgedItem.name;
-        swordModel.currentWeaponId = forgedItem.id;
-        sfxPlayer?.play(AudioEvent.ITEM_PICKUP);
+        if (forgedItem.weaponType === 'dual-daggers') {
+          // Switch to dual daggers
+          swordModel.setVisible(false);
+          if (!dualSwordModel) {
+            dualSwordModel = new DualSwordModel(camera);
+          }
+          await dualSwordModel.loadGLB(forgedItem.data);
+          dualSwordModel.setVisible(true);
+          dualSwordModel.currentWeaponName = forgedItem.name;
+          dualSwordModel.currentWeaponId = forgedItem.id;
+          activeWeaponModel = 'dual';
+        } else {
+          // Single weapon (sword, staff, hammer, axe, spear, mace, bow)
+          if (dualSwordModel) {
+            dualSwordModel.setVisible(false);
+          }
+          swordModel.setVisible(true);
+          activeWeaponModel = 'sword';
+          await swordModel.loadGLB(forgedItem.data);
+          swordModel.currentWeaponName = forgedItem.name;
+          swordModel.currentWeaponId = forgedItem.id;
+        }
+
+        // Staff or bow → ranged mode
+        if (forgedItem.weaponType === 'staff' || forgedItem.weaponType === 'bow') {
+          equippedWeapon = 'ranged';
+        } else {
+          equippedWeapon = 'melee';
+        }
       } else if (forgedItem.category === 'enemy') {
         const dataUrl = arrayBufferToDataUrl(forgedItem.data, 'image/png');
         customEnemyQueue.push({ dataUrl, name: forgedItem.name, id: forgedItem.id });
-        sfxPlayer?.play(AudioEvent.ITEM_PICKUP);
       } else if (forgedItem.category === 'decoration') {
         const dataUrl = arrayBufferToDataUrl(forgedItem.data, 'image/png');
         customPaintingQueue.push({ dataUrl, name: forgedItem.name, id: forgedItem.id });
-        sfxPlayer?.play(AudioEvent.ITEM_PICKUP);
       }
     } catch (err) {
       console.error('Forge failed:', err);
@@ -531,7 +562,11 @@ export async function createGameLoop(
 
     // Combat
     combat.update(delta);
-    swordModel.update(combat.isAttacking(), combat.getAttackProgress(), delta);
+    if (activeWeaponModel === 'dual' && dualSwordModel) {
+      dualSwordModel.update(combat.isAttacking(), combat.getAttackProgress(), delta);
+    } else {
+      swordModel.update(combat.isAttacking(), combat.getAttackProgress(), delta);
+    }
     if (combat.isAttacking() && combat.getAttackProgress() < 0.1 && !attackHitChecked) {
       attackHitChecked = true;
       const targets = enemies.getTargets();
@@ -636,6 +671,7 @@ export async function createGameLoop(
     enemies.dispose();
     hud.dispose();
     swordModel.dispose();
+    dualSwordModel?.dispose();
     camera.remove(playerTorch);
     playerTorch.dispose();
     disposeDecorations(decorations);

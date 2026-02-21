@@ -181,6 +181,7 @@ forgeRouter.post('/forge', async (req: Request, res: Response) => {
       'X-Item-Category': category,
       'X-Weapon-Id': String(itemId),
       'X-Weapon-Name': itemName,
+      'X-Weapon-Type': weaponType || 'sword',
     });
     res.send(glbBuffer);
   } catch (err) {

@@ -42,15 +42,22 @@ export class SwordModel {
     const gltf = await this.loader.parseAsync(buffer, './');
     const model = gltf.scene;
 
-    // Normalize to fit sword size
+    // Scale to fit weapon size
     const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
     const scale = 0.5 / maxDim;
     model.scale.setScalar(scale);
 
+    // Re-compute box after scaling
+    box.setFromObject(model);
     const center = box.getCenter(new THREE.Vector3());
-    model.position.sub(center).multiplyScalar(scale);
+    const min = box.min;
+
+    // Position so bottom of bounding box (handle) aligns with grip point (origin)
+    model.position.x = -center.x;
+    model.position.z = -center.z;
+    model.position.y = -min.y;  // Bottom of weapon at y=0 (grip)
 
     this.model = model;
     this.group.add(model);
@@ -116,6 +123,10 @@ export class SwordModel {
       this.group.position.z = this.idlePosition.z;
       this.group.rotation.copy(this.idleRotation);
     }
+  }
+
+  setVisible(visible: boolean): void {
+    this.group.visible = visible;
   }
 
   dispose(): void {

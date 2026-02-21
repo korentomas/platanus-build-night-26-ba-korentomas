@@ -29,10 +29,10 @@ function buildPromptConfig(category: ForgeCategory, description?: string, weapon
   if (category === 'enemy') {
     const desc = description || 'a fearsome dungeon creature';
     return {
-      prompt: `2D game character sprite of exactly what was drawn: ${desc}. Faithfully match the sketch. Front-facing, full body, solid white background, clean outline, single character centered, game asset sprite, no shadow, no text`,
-      negative_prompt: 'blurry, low quality, multiple characters, text, watermark, background scene, realistic photo, 3D render, gradient background, complex background, floor, ground, shadow on ground',
+      prompt: `2D game character sprite, isolated single creature only: ${desc}. Faithfully match the sketch silhouette. Front-facing, full body, plain solid white background, clean sharp outline, NO items, NO weapons, NO props, NO scenery, just the creature itself centered, pixel art game asset sprite style`,
+      negative_prompt: 'blurry, low quality, multiple characters, text, watermark, background scene, realistic photo, 3D render, gradient background, complex background, floor, ground, shadow on ground, items, weapons, props, scenery, landscape, furniture, treasure, accessories held, environment, trees, rocks, buildings',
       style_preset: 'comic-book',
-      control_strength: '0.7',
+      control_strength: '0.85',
     };
   }
   if (category === 'decoration') {

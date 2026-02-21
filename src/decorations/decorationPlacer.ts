@@ -34,7 +34,7 @@ const DECORATIONS: DecorationDef[] = [
   { name: 'barrel', create: createBarrelModel, frequency: 0.12, wallOnly: true, breakable: true, health: 2 },
   { name: 'crate', create: createCrateModel, frequency: 0.10, wallOnly: true, breakable: true, health: 2 },
   { name: 'bones', create: createBonesModel, frequency: 0.08, wallOnly: false, breakable: false, health: 0 },
-  { name: 'pillar', create: createPillarModel, frequency: 0.04, wallOnly: false, breakable: false, health: 0 },
+  { name: 'pillar', create: createPillarModel, frequency: 0.04, wallOnly: false, breakable: true, health: 4 },
   { name: 'chest', create: createChestModel, frequency: 0.05, wallOnly: true, breakable: true, health: 3, lootType: 'score' },
   { name: 'urn', create: createUrnModel, frequency: 0.08, wallOnly: false, breakable: true, health: 1 },
   { name: 'candelabra', create: createCandelabraModel, frequency: 0.05, wallOnly: true, breakable: false, health: 0 },

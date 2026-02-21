@@ -153,7 +153,7 @@ function placeDoors(
         if (leftFloor && rightFloor) {
           grid[northRow][col] = CellType.DOOR;
           const adjacentRoomIndices = findAdjacentRoomIndices(col, northRow, 'ns', rooms);
-          doors.push({ gridX: col, gridZ: northRow, orientation: 'ns', isOpen: false, openProgress: 0, adjacentRoomIndices, isLocked: false });
+          doors.push({ gridX: col, gridZ: northRow, orientation: 'ns', isOpen: false, openProgress: 0, adjacentRoomIndices, isLocked: false, health: 3 });
         }
       }
     }
@@ -170,7 +170,7 @@ function placeDoors(
         if (leftFloor && rightFloor) {
           grid[southRow][col] = CellType.DOOR;
           const adjacentRoomIndices = findAdjacentRoomIndices(col, southRow, 'ns', rooms);
-          doors.push({ gridX: col, gridZ: southRow, orientation: 'ns', isOpen: false, openProgress: 0, adjacentRoomIndices, isLocked: false });
+          doors.push({ gridX: col, gridZ: southRow, orientation: 'ns', isOpen: false, openProgress: 0, adjacentRoomIndices, isLocked: false, health: 3 });
         }
       }
     }
@@ -188,7 +188,7 @@ function placeDoors(
         if (upFloor && downFloor) {
           grid[row][westCol] = CellType.DOOR;
           const adjacentRoomIndices = findAdjacentRoomIndices(westCol, row, 'ew', rooms);
-          doors.push({ gridX: westCol, gridZ: row, orientation: 'ew', isOpen: false, openProgress: 0, adjacentRoomIndices, isLocked: false });
+          doors.push({ gridX: westCol, gridZ: row, orientation: 'ew', isOpen: false, openProgress: 0, adjacentRoomIndices, isLocked: false, health: 3 });
         }
       }
     }
@@ -205,7 +205,7 @@ function placeDoors(
         if (upFloor && downFloor) {
           grid[row][eastCol] = CellType.DOOR;
           const adjacentRoomIndices = findAdjacentRoomIndices(eastCol, row, 'ew', rooms);
-          doors.push({ gridX: eastCol, gridZ: row, orientation: 'ew', isOpen: false, openProgress: 0, adjacentRoomIndices, isLocked: false });
+          doors.push({ gridX: eastCol, gridZ: row, orientation: 'ew', isOpen: false, openProgress: 0, adjacentRoomIndices, isLocked: false, health: 3 });
         }
       }
     }

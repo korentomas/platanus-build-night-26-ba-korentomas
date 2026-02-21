@@ -29,6 +29,7 @@ export interface DoorInstance {
   openProgress: number; // 0=closed, 1=open
   adjacentRoomIndices: number[];
   isLocked: boolean;
+  health: number; // hits to break (3 default)
 }
 
 export interface SpawnPoint {

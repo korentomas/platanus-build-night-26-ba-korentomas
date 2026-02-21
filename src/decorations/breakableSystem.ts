@@ -7,6 +7,7 @@ export interface BreakableDecoration {
   worldZ: number;
   health: number; // how many hits to break (1 for urns, 2 for crates/barrels, 3 for chests)
   lootType?: LootType; // what drops when broken
+  onBreak?: () => void; // called when destroyed
 }
 
 export interface BreakResult {
@@ -140,6 +141,9 @@ export class BreakableSystem {
 
   /** Called when a breakable's health reaches 0 */
   private breakDecoration(breakable: BreakableDecoration): BreakResult {
+    // Call onBreak callback if provided
+    breakable.onBreak?.();
+
     // 1. Remove original mesh from scene
     if (breakable.mesh.parent) {
       breakable.mesh.parent.remove(breakable.mesh);

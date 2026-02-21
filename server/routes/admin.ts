@@ -3,7 +3,7 @@ import pool from '../db.js';
 
 export const adminRouter = Router();
 
-/** Middleware: require X-Admin-Secret header matching ADMIN_SECRET env var */
+/** Middleware: require X-Admin-Secret header matching ADMIN_SECRET env var. */
 function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   const secret = req.headers['x-admin-secret'] as string | undefined;
   const expected = process.env.ADMIN_SECRET;

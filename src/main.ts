@@ -148,6 +148,11 @@ async function init() {
     sfxPlayer.play(AudioEvent.MENU_SELECT);
     musicPlayer.stop();
 
+    // Hide main menu meshes so name entry is visible
+    if (title) title.mesh.visible = false;
+    if (menu) menu.group.visible = false;
+    if (creditsEl) creditsEl.style.display = 'none';
+
     // Show name entry
     playerName = await showNameEntry3D(camera);
 

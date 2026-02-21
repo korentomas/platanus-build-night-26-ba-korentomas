@@ -51,7 +51,7 @@ export function showNameEntry3D(
     }> = [];
 
     // ---- Backdrop ----
-    const backdrop = createOverlayBackdrop(0.9);
+    const backdrop = createOverlayBackdrop(0.25);
     camera.add(backdrop);
     overlayObjects.push({ mesh: backdrop, material: backdrop.material as THREE.Material, geometry: backdrop.geometry });
 
@@ -133,7 +133,7 @@ export function showNameEntry3D(
         size: 0.5,
         color: 0x8b7355,
         emissive: 0x554430,
-        emissiveIntensity: 1.5,
+        emissiveIntensity: 4.7,
       });
       title.mesh.position.set(0, 2.5, 0);
       container.add(title.mesh);
@@ -144,7 +144,7 @@ export function showNameEntry3D(
       const slotMat = new THREE.MeshStandardMaterial({
         color: 0x1a1008,
         emissive: 0x4a3a28,
-        emissiveIntensity: 0.3,
+        emissiveIntensity: 5,
         roughness: 0.8,
         metalness: 0.2,
         toneMapped: false,
@@ -190,7 +190,7 @@ export function showNameEntry3D(
       });
       enterButton.mesh.position.set(0, -0.8, 0);
       enterButton.material.transparent = true;
-      enterButton.material.opacity = 0.4;
+      enterButton.material.opacity = 0.5;
       container.add(enterButton.mesh);
       overlayObjects.push(enterButton);
 
@@ -199,7 +199,7 @@ export function showNameEntry3D(
         size: 0.15,
         color: 0x8b7355,
         emissive: 0x554430,
-        emissiveIntensity: 0.6,
+        emissiveIntensity: 10,
       });
       hint.mesh.position.set(0, -1.8, 0);
       container.add(hint.mesh);
@@ -208,6 +208,7 @@ export function showNameEntry3D(
       // Wire pointer events
       window.addEventListener('pointermove', onPointerMove);
       window.addEventListener('click', onPointerClick);
+
     }
 
     function addLetterMesh(index: number, ch: string) {

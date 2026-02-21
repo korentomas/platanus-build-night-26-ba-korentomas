@@ -189,7 +189,7 @@ export async function createOverlayButton(
  * so it illuminates text and frames evenly.
  */
 export function createOverlayLight(): THREE.PointLight {
-  const light = new THREE.PointLight(0xffeedd, 2.5, 20);
+  const light = new THREE.PointLight(0xffeedd, 8.3, 40);
   light.position.set(0, 0, -5);
   return light;
 }

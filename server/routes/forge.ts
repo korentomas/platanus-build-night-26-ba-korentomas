@@ -146,9 +146,10 @@ forgeRouter.post('/forge', async (req: Request, res: Response) => {
 
       const table = category === 'enemy' ? 'enemies' : 'decorations';
       const defaultName = category === 'enemy' ? 'Unnamed Enemy' : 'Unnamed Decoration';
+      const subtype = weaponType || (category === 'enemy' ? 'beast' : 'crate');
       const result = await pool.query(
-        `INSERT INTO ${table} (name, sketch_png, sprite_png) VALUES ($1, $2, $3) RETURNING id, name`,
-        [name || defaultName, base64Data, finalImage]
+        `INSERT INTO ${table} (name, sketch_png, sprite_png, subtype) VALUES ($1, $2, $3, $4) RETURNING id, name`,
+        [name || defaultName, base64Data, finalImage, subtype]
       );
       const itemId = result.rows[0].id;
       const itemName = result.rows[0].name;
@@ -210,8 +211,8 @@ forgeRouter.post('/forge', async (req: Request, res: Response) => {
 
     // Store weapon in DB (enemies/decorations already handled above)
     const result = await pool.query(
-      'INSERT INTO weapons (name, sketch_png, output_png, model_glb) VALUES ($1, $2, $3, $4) RETURNING id, name',
-      [name || 'Unnamed Weapon', base64Data, renderedImage, glbBuffer]
+      'INSERT INTO weapons (name, sketch_png, output_png, model_glb, subtype) VALUES ($1, $2, $3, $4, $5) RETURNING id, name',
+      [name || 'Unnamed Weapon', base64Data, renderedImage, glbBuffer, weaponType || 'sword']
     );
     const itemId = result.rows[0].id;
     const itemName = result.rows[0].name;

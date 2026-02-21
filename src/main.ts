@@ -14,9 +14,11 @@ import {
 import { initCheatConsole } from './cheats/cheatConsole';
 import { registerDefaultCheats } from './cheats/defaultCheats';
 import { forgeEnemy } from './api/enemyApi';
+import { forge3d } from './api/forge3dApi';
 import { loadEnemySprite } from './enemy/enemyLoader';
 import { createEnemyInstance, EnemyInstance } from './enemy/enemyController';
 import { createGenerationOverlay } from './enemy/generationOverlay';
+import { loadCorridorObject, placeInCorridor, CorridorObject } from './scene/corridorObject';
 
 async function init() {
   const { scene, camera, renderer } = createScene();
@@ -56,9 +58,10 @@ async function init() {
     fog: scene.fog as THREE.FogExp2,
   });
 
-  // Enemy generation state
+  // Generation state
   const generationOverlay = createGenerationOverlay();
   let activeEnemy: EnemyInstance | null = null;
+  const corridorObjects: CorridorObject[] = [];
 
   // Drawing overlay (press D to open)
   window.addEventListener('keydown', (e) => {
@@ -76,30 +79,42 @@ async function init() {
         showDrawingOverlay({
           onSubmit: async (result) => {
             hideDrawingOverlay();
-
-            if (result.categoryId !== 'enemy') {
-              console.log('Drawing submitted:', result.categoryId, result.imageData.length);
-              return;
-            }
-
             generationOverlay.show();
 
             try {
-              generationOverlay.setStage('mesh', 'Conjuring form...');
-              const forgeResult = await forgeEnemy(result.imageData, (progress) => {
-                generationOverlay.setStage(progress.stage, progress.message);
-              });
+              if (result.categoryId === 'enemy') {
+                // Enemy: billboard sprite
+                generationOverlay.setStage('generating', 'Conjuring creature...');
+                const spriteDataUrl = await forgeEnemy(result.imageData, (p) => {
+                  generationOverlay.setStage(p.stage, p.message);
+                });
 
-              generationOverlay.setStage('loading', 'Summoning creature...');
-              const enemyModel = await loadEnemySprite(forgeResult);
+                generationOverlay.setStage('loading', 'Summoning creature...');
+                const enemyModel = await loadEnemySprite(spriteDataUrl);
+                activeEnemy?.dispose();
+                const spawnZ = corridorState.cameraZ - 30;
+                activeEnemy = createEnemyInstance(enemyModel, scene, spawnZ);
+              } else {
+                // Weapon / Decoration: 3D model via SF3D
+                const label = result.categoryId === 'weapon' ? 'weapon' : 'decoration';
+                generationOverlay.setStage('generating', `Forging ${label}...`);
+                const glb = await forge3d(result.imageData, result.categoryId, (p) => {
+                  generationOverlay.setStage(p.stage, p.message);
+                });
 
-              activeEnemy?.dispose();
-              const spawnZ = corridorState.cameraZ - 30;
-              activeEnemy = createEnemyInstance(enemyModel, scene, spawnZ);
+                generationOverlay.setStage('loading', `Placing ${label}...`);
+                const height = result.categoryId === 'weapon' ? 0.8 : 1.0;
+                const obj = await loadCorridorObject(glb, height);
+                const side = result.categoryId === 'decoration'
+                  ? (Math.random() > 0.5 ? 'left' : 'right')
+                  : 'center';
+                placeInCorridor(obj, scene, corridorState.cameraZ - 15, side);
+                corridorObjects.push(obj);
+              }
 
               generationOverlay.hide();
             } catch (err) {
-              console.error('Enemy forge failed:', err);
+              console.error('Forge failed:', err);
               generationOverlay.setError(
                 err instanceof Error ? err.message : 'Unknown error'
               );
